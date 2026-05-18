@@ -31,12 +31,26 @@
   background-color: #b44;
 }
 
+#home-content >
+  .screen .screen-error.screen-error-level-error:nth-child(even) {
+  background-color: #a33;
+}
+
 #home-content > .screen .screen-error.screen-error-level-warning {
   background-color: #b82;
 }
 
+#home-content >
+  .screen .screen-error.screen-error-level-warning:nth-child(even) {
+  background-color: #a71;
+}
+
 #home-content > .screen .screen-error.screen-error-level-info {
   background-color: #28b;
+}
+
+#home-content > .screen .screen-error.screen-error-level-info:nth-child(even) {
+  background-color: #17a;
 }
 
 #home-content > .screen .screen-error > .screen-error-options {}
