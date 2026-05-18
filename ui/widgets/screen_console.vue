@@ -108,7 +108,6 @@ import { WebglAddon } from "@xterm/addon-webgl";
 import { FitAddon } from "@xterm/addon-fit";
 import { 
   ClipboardAddon,
-  BrowserClipboardProvider,
   Base64 as ClipboardBase64
 } from "@xterm/addon-clipboard";
 import { isNumber } from "../commands/common.js";
@@ -158,9 +157,8 @@ const termClipboardWriteWarning = "Remote is requesting to copy content to " +
 const termClipboardAlwaysWriteWarning = "Clipboard requests from the remote " +
   "is always accepted into the clipboard of your system";
 
-class CustomClipboardProvider extends BrowserClipboardProvider {
+class CustomClipboardProvider {
   constructor(indicatorMsg) {
-    super();
     this.cached = "";
     this.alwaysAllowed = false;
     this.indicatorShown = false;
@@ -186,7 +184,7 @@ class CustomClipboardProvider extends BrowserClipboardProvider {
         "info",
         [
           new IndicatorAction(
-            "Stop allowing",
+            "\u{2715} Stop allowing",
             (uid, ok) => {
               clearIndicator();
               if (!ok) {
@@ -219,6 +217,7 @@ class CustomClipboardProvider extends BrowserClipboardProvider {
       const self = this;
       self.clipboardWriteErrorTimeout = setTimeout(() => {
         self.indicatorMsg.dismiss(INDICATOR_CLIPBOARD_WRITE_ERROR);
+        self.clipboardWriteErrorTimeout = null;
       }, termClipboardWarningTimeout)
     }
   }
@@ -232,8 +231,11 @@ class CustomClipboardProvider extends BrowserClipboardProvider {
     const self = this;
     self.indicatorShown = true;
     const clearIndicator = () => {
-        self.indicatorMsg.dismiss(INDICATOR_CLIPBOARD_WRITE_WARNING);
-        self.indicatorShown = false;
+      if (!self.indicatorShown) {
+        return;
+      }
+      self.indicatorMsg.dismiss(INDICATOR_CLIPBOARD_WRITE_WARNING);
+      self.indicatorShown = false;
     };
     const copyCached = () => {
       self.writeTextToSysClipboard(self.cached);
@@ -246,7 +248,13 @@ class CustomClipboardProvider extends BrowserClipboardProvider {
         "warning",
         [
           new IndicatorAction(
-            "Allow and copy once",
+            "\u{2297} Don't copy",
+            (uid, ok) => {
+              clearIndicator();
+            }
+          ),
+          new IndicatorAction(
+            "\u{2398} Allow and copy once",
             (uid, ok) => {
               clearIndicator();
               if (!ok) {

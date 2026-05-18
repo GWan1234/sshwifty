@@ -48,10 +48,12 @@
  .screen-error-option {
   display: inline-block;
   cursor: pointer;
+  line-height: 1.5em;
   padding: 5px 10px;
   margin: 10px 10px 0 0;
   background: #fff;
   color: #b44;
+  overflow: hidden;
 }
 
 #home-content >
@@ -59,7 +61,7 @@
  .screen-error >
  .screen-error-options >
  .screen-error-option:not(:first-child) {
-  background: #d66;
+  background: #a55;
   color: #fff;
 }
 
@@ -85,7 +87,7 @@
  .screen-error.screen-error-level-warning >
  .screen-error-options >
  .screen-error-option:not(:first-child) {
-  background: #da4;
+  background: #c93;
   color: #fff;
 }
 
@@ -102,6 +104,6 @@
  .screen-error.screen-error-level-info >
  .screen-error-options >
  .screen-error-option:not(:first-child) {
-  background: #4ad;
+  background: #39c;
   color: #fff;
 }
