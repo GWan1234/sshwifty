@@ -62,10 +62,10 @@
       :screen="tab.current"
       :screens="tab.tabs"
       :view-port="viewPort"
-      @stopped="tabStopped"
-      @warning="tabWarning"
-      @info="tabInfo"
+      @indicated="tabIndicate"
+      @indicationDismissed="tabDismissIndicator",
       @updated="tabUpdated"
+      @stopped="tabStopped"
     >
       <div id="home-content-wrap">
         <h1>Hi, this is Sshwifty</h1>
@@ -145,6 +145,10 @@ import Connector from "./widgets/connector.vue";
 import Tabs from "./widgets/tabs.vue";
 import TabWindow from "./widgets/tab_window.vue";
 import Screens from "./widgets/screens.vue";
+import { 
+  Indicators as ScreenIndicators,
+  Indicator as ScreenIndicator,
+} from "./widgets/screen_indicator.vue";
 
 import * as home_socket from "./home_socketctl.js";
 import * as home_history from "./home_historyctl.js";
@@ -478,12 +482,8 @@ export default {
           control: data.control,
           ui: data.ui,
           toolbar: false,
-          indicator: {
-            level: "",
-            message: "",
-            updated: false,
-            callback: null,
-          },
+          indicators: new ScreenIndicators(),
+          updated: false,
           status: {
             closing: false,
           },
@@ -500,7 +500,7 @@ export default {
         await this.tab.tabs[this.tab.current].control.disabled();
       }
       this.tab.current = to;
-      this.tab.tabs[this.tab.current].indicator.updated = false;
+      this.tab.tabs[this.tab.current].updated = false;
       await this.tab.tabs[this.tab.current].control.enabled();
     },
     async retapTab(tab) {
@@ -522,43 +522,25 @@ export default {
       this.removeFromTab(index);
       this.$emit("tab-closed", this.tab.tabs);
     },
-    tabStopped(index, reason) {
-      if (reason !== null) {
-        this.tab.tabs[index].indicator.message = "" + reason;
-        this.tab.tabs[index].indicator.level = "error";
-        this.tab.tabs[index].indicator.callback = null;
-      } else {
-        this.tab.tabs[index].indicator.message = "";
-        this.tab.tabs[index].indicator.level = "";
-        this.tab.tabs[index].indicator.callback = null;
-      }
+    clearIndicator(index) {
+      this.tab.tabs[index].indicators.clear();
     },
-    tabMessage(index, msg, type) {
-      if (msg.toDismiss) {
-        if (
-          this.tab.tabs[index].indicator.message !== msg.text ||
-          this.tab.tabs[index].indicator.level !== type
-        ) {
-          return;
-        }
-        this.tab.tabs[index].indicator.message = "";
-        this.tab.tabs[index].indicator.level = "";
-        this.tab.tabs[index].indicator.callback = null;
-        return;
-      }
-      this.tab.tabs[index].indicator.message = msg.text;
-      this.tab.tabs[index].indicator.level = type;
-      this.tab.tabs[index].indicator.callback = msg.callback;
+    tabIndicate(index, indicator) {
+      this.tab.tabs[index].indicators.append(indicator);
     },
-    tabWarning(index, msg) {
-      this.tabMessage(index, msg, "warning");
-    },
-    tabInfo(index, msg) {
-      this.tabMessage(index, msg, "info");
+    tabDismissIndicator(index, uid) {
+      this.tab.tabs[index].indicators.dismiss(uid);
     },
     tabUpdated(index) {
       this.$emit("tab-updated", this.tab.tabs);
-      this.tab.tabs[index].indicator.updated = index !== this.tab.current;
+      this.tab.tabs[index].updated = index !== this.tab.current;
+    },
+    tabStopped(index, reason) {
+      this.clearIndicator(index);
+      this.tabIndicate(
+        index,
+        new ScreenIndicator("STOPPED", "" + reason, "error", []),
+      );
     },
   },
 };
