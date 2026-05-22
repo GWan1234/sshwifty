@@ -748,6 +748,11 @@ export default {
       try {
         await this.current.data.submit(this.getFieldValues());
       } catch (e) {
+        try {
+          await this.current.data.cancel();
+        } catch(e) {
+          // Ignore
+        }
         this.current.submitting = false;
         alert("Submission has failed: " + e);
         process.env.NODE_ENV === "development" && console.trace(e);
