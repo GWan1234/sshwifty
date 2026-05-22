@@ -529,6 +529,8 @@ computer console.
   fix
 - Thanks to [ZStrikeGit](https://github.com/ZStrikeGit) for the grammar and 
   formatting fixes
+- Thanks to [Scarfsai](https://github.com/Scarfsai) for enabling supports to
+  `xterm-256color` and `@xterm/addon-clipboard`
 
 ## License
 
